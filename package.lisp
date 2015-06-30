@@ -1,5 +1,5 @@
 ;;;; package.lisp
 
 (defpackage #:via
-  (:use #:cl))
-
+  (:use #:cl)
+  (:export :defproxy :defproxy-impl :proxify))

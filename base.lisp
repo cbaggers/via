@@ -11,7 +11,6 @@
 ;; a proxy is defined as a list of functions the object must adhere to
 ;; a proxy is then a struct that has a slot for the object and then one
 ;; slot for each function
-
 (defstruct proxy
   (target (error "All proxies must be initialized with a target") :type t))
 
@@ -39,13 +38,14 @@
               `(defun ,func-name (prxy ,@arg-names)
                  (let* ((target (proxy-target prxy))
                         (func (,slot-name prxy)))
-                   (funcall func target ,@arg-names))))))))
+                   (funcall func target ,@arg-names)))))
+       ',name)))
 
 ;; def-proxy-impl is a macro that lets you define a implementation for a proxy
 ;; for a given type
 ;; you can then use (make-*-proxy x) where * is the type (proxy *) which is
 ;; generic and specialized on the type.
-(defmacro def-proxy-impl ((proxy-type target-type) &body funcs)
+(defmacro defproxy-impl ((proxy-type target-type) &body funcs)
   `(progn
      (defun ,(symb 'make- target-type '-proxy) (x)
        (,(symb 'make- proxy-type '-proxy)
@@ -54,6 +54,8 @@
      (defmethod proxify ((x ,target-type) (p (eql ',proxy-type)))
        (declare (ignore p))
        (,(symb 'make- target-type '-proxy) x))))
+
+(defgeneric proxify (x proxy-type))
 
 ;; ;; define the proxy
 ;; (defproxy printable ()
